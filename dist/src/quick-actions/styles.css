@@ -1,0 +1,117 @@
+/**
+ * Google Keep Quick Actions - スタイル
+ */
+
+/* クイックアクションボタンの基本スタイル */
+.keep-quick-action {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  border-radius: 50% !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  flex-shrink: 0 !important;
+}
+
+/* ホバー効果 */
+.keep-quick-action:hover {
+  background-color: rgba(95, 99, 104, 0.1) !important;
+}
+
+/* アクティブ効果 */
+.keep-quick-action:active {
+  background-color: rgba(95, 99, 104, 0.2) !important;
+}
+
+/* SVGアイコンのスタイル */
+.keep-quick-action svg {
+  width: 20px !important;
+  height: 20px !important;
+  color: #5f6368 !important;
+  fill: #5f6368 !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: none !important;
+}
+
+/* SVGパス要素にも直接スタイルを適用 */
+.keep-quick-action svg path {
+  fill: #5f6368 !important;
+  color: #5f6368 !important;
+}
+
+/* ダークモード対応 */
+@media (prefers-color-scheme: dark) {
+  .keep-quick-action:hover {
+    background-color: rgba(232, 234, 237, 0.1) !important;
+  }
+  
+  .keep-quick-action:active {
+    background-color: rgba(232, 234, 237, 0.2) !important;
+  }
+  
+  .keep-quick-action svg {
+    color: #e8eaed !important;
+    fill: #e8eaed !important;
+  }
+  
+  .keep-quick-action svg path {
+    fill: #e8eaed !important;
+    color: #e8eaed !important;
+  }
+}
+
+/* Google Keepのダークテーマクラスにも対応 */
+body.RDHcvf-dAgLMd .keep-quick-action svg,
+.RDHcvf-dAgLMd .keep-quick-action svg {
+  color: #e8eaed !important;
+  fill: #e8eaed !important;
+}
+
+body.RDHcvf-dAgLMd .keep-quick-action svg path,
+.RDHcvf-dAgLMd .keep-quick-action svg path {
+  fill: #e8eaed !important;
+  color: #e8eaed !important;
+}
+
+body.RDHcvf-dAgLMd .keep-quick-action:hover,
+.RDHcvf-dAgLMd .keep-quick-action:hover {
+  background-color: rgba(232, 234, 237, 0.1) !important;
+}
+
+/* ツールチップ表示のためのカスタムスタイル（オプション） */
+.keep-quick-action[data-tooltip-text]:hover::after {
+  content: attr(data-tooltip-text);
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #616161;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 10000;
+  pointer-events: none;
+}
+
+/* フォーカス時のアウトライン */
+.keep-quick-action:focus {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+
+.keep-quick-action:focus:not(:focus-visible) {
+  outline: none;
+}
