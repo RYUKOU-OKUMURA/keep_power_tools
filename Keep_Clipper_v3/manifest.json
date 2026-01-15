@@ -1,0 +1,43 @@
+{
+  "name": "Keep Clipper",
+  "description": "ワンクリックで選択テキストとページURLをGoogle Keepに保存します。",
+  "version": "2.0.0",
+  "manifest_version": 3,
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "tabs",
+    "contextMenus",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://keep.google.com/*"
+  ],
+  "options_page": "src/options.html",
+  "background": {
+    "service_worker": "src/background.js"
+  },
+  "action": {
+    "default_title": "Keep Clipper",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://*/*", "http://*/*"],
+      "exclude_matches": ["https://keep.google.com/*"],
+      "js": ["src/contentSelection.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
