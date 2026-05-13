@@ -194,7 +194,7 @@
   <div class="card">
     <h2>プライバシーとパーミッション</h2>
     <ul>
-      <li>取得するデータ: 選択テキストとページURLのみ。</li>
+      <li>取得するデータ: ページURLと、設定で許可した場合の選択テキストのみ。</li>
       <li>送信先: Google Keep 以外へ送信しません。拡張内に保存も行いません。</li>
       <li>権限: アクティブタブ・コンテキストメニュー・スクリプト挿入を利用します。</li>
       <li>シークレット/シークレットウィンドウ: 許可した場合も送信先は Keep のみです。</li>
@@ -204,10 +204,15 @@
   <div class="card">
     <h2>インライン保存ボタン</h2>
     <label>
-      <input id="inlineEnabled" type="checkbox" />
-      選択テキスト付近に「保存」ボタンを表示する
+      <input id="selectionSaveEnabled" type="checkbox" />
+      ドラッグ選択したテキストを Google Keep に保存対象にする
     </label>
-    <div class="help">オフにすると、ボタンを挿入するためのリスナーを登録しません。</div>
+    <div class="help">オフにすると、選択テキストの保存ボタンと右クリックの選択テキスト保存を無効にします。ページ保存はページタイトルとURLのみを使います。</div>
+    <label style="margin-top: 14px;">
+      <input id="inlineEnabled" type="checkbox" />
+      選択テキスト付近に「Keep」保存ボタンを表示する
+    </label>
+    <div class="help">選択テキスト保存がオンのときだけ有効です。オフにすると、ボタンを挿入するためのリスナーを登録しません。</div>
   </div>
 
   <div class="card">
@@ -251,4 +256,3 @@
   <script src="options.js"></script>
 </body>
 </html>
-

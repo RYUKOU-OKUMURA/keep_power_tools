@@ -1,8 +1,10 @@
 (() => {
+  const SELECTION_SAVE_KEY = "selectionSaveEnabled";
   const INLINE_KEY = "inlineEnabled";
   const FILTER_KEY = "domainFilters";
   const QUICK_ACTIONS_KEY = "quickActionsConfig";
 
+  const $selectionSave = document.getElementById("selectionSaveEnabled");
   const $inline = document.getElementById("inlineEnabled");
   const $filters = document.getElementById("domainFilters");
   const $save = document.getElementById("saveBtn");
@@ -28,11 +30,14 @@
 
   const load = async () => {
     const res = await chrome.storage.local.get({
+      [SELECTION_SAVE_KEY]: true,
       [INLINE_KEY]: true,
       [FILTER_KEY]: [],
       [QUICK_ACTIONS_KEY]: DEFAULT_QUICK_ACTIONS,
     });
+    $selectionSave.checked = res[SELECTION_SAVE_KEY] !== false;
     $inline.checked = Boolean(res[INLINE_KEY]);
+    updateInlineAvailability();
     $filters.value = (res[FILTER_KEY] || []).join("\n");
 
     const quickActionsConfig = res[QUICK_ACTIONS_KEY] || DEFAULT_QUICK_ACTIONS;
@@ -56,6 +61,7 @@
     });
 
     await chrome.storage.local.set({
+      [SELECTION_SAVE_KEY]: $selectionSave.checked,
       [INLINE_KEY]: $inline.checked,
       [FILTER_KEY]: filters,
       [QUICK_ACTIONS_KEY]: quickActionsConfig,
@@ -69,6 +75,13 @@
     $save.disabled = false;
   };
 
+  const updateInlineAvailability = () => {
+    const enabled = $selectionSave.checked;
+    $inline.disabled = !enabled;
+  };
+
+  $selectionSave.addEventListener("change", updateInlineAvailability);
+
   $save.addEventListener("click", () => {
     save().catch((err) => {
       console.error("options save failed", err);
@@ -80,4 +93,3 @@
 
   load().catch((err) => console.error("options load failed", err));
 })();
-

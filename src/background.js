@@ -1,11 +1,10 @@
 const KEEP_URL = "https://keep.google.com/";
+const SELECTION_SAVE_KEY = "selectionSaveEnabled";
 
 // コンテキストメニュー作成（選択テキスト/ページから保存）
 chrome.runtime.onInstalled.addListener((details) => {
-  chrome.contextMenus.create({
-    id: "save-to-keep",
-    title: "Google Keep に保存",
-    contexts: ["selection", "page"],
+  rebuildContextMenu().catch((err) => {
+    console.warn("context menu setup failed", err);
   });
 
   // 初回インストール時にオプションページでデータ取り扱いを案内
@@ -34,19 +33,44 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+chrome.runtime.onStartup.addListener(() => {
+  rebuildContextMenu().catch((err) => {
+    console.warn("context menu setup failed", err);
+  });
+});
+
+chrome.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== "local" || !changes[SELECTION_SAVE_KEY]) return;
+  rebuildContextMenu().catch((err) => {
+    console.warn("context menu update failed", err);
+  });
+});
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type === "save-selection") {
-    if (sender.tab) {
+    (async () => {
+      if (!sender.tab) {
+        sendResponse({ ok: false, reason: "no-tab" });
+        return;
+      }
+
+      if (!(await isSelectionSaveEnabled())) {
+        await showToast(sender.tab.id, "選択テキストの保存はオプションでオフになっています。");
+        sendResponse({ ok: false, reason: "selection-disabled" });
+        return;
+      }
+
       // contentSelection.jsから直接テキストとURLを受け取る
-      handleClipWithText(
+      await handleClipWithText(
         sender.tab,
         message.text || "",
         message.url || sender.tab?.url || ""
       );
       sendResponse({ ok: true });
-    } else {
-      sendResponse({ ok: false, reason: "no-tab" });
-    }
+    })().catch((err) => {
+      console.error("save-selection failed", err);
+      sendResponse({ ok: false, reason: "save-failed" });
+    });
     return true;
   }
 });
@@ -56,8 +80,9 @@ async function handleClip(tab) {
   if (tab.url?.startsWith(KEEP_URL)) return;
 
   try {
+    const selectionSaveEnabled = await isSelectionSaveEnabled();
     const pageInfo = await getPageInfo(tab.id);
-    const payloadText = pageInfo.text || pageInfo.title || "";
+    const payloadText = (selectionSaveEnabled ? pageInfo.text : "") || pageInfo.title || "";
     const pageUrl = pageInfo.url || tab.url || "";
     const keepTabId = await ensureKeepTab();
     const payload = { text: payloadText, url: pageUrl };
@@ -77,7 +102,8 @@ async function handleClipWithText(tab, selectionText, pageUrl) {
   if (tab.url?.startsWith(KEEP_URL)) return;
 
   try {
-    const payloadText = selectionText || tab.title || "";
+    const selectionSaveEnabled = await isSelectionSaveEnabled();
+    const payloadText = (selectionSaveEnabled ? selectionText : "") || tab.title || "";
     // URLが空の場合、chrome.tabs.queryで直接取得
     let url = pageUrl || tab.url || "";
     if (!url) {
@@ -109,6 +135,21 @@ async function getPageInfo(tabId) {
     },
   });
   return result?.result ?? { text: "", title: "", url: "" };
+}
+
+async function isSelectionSaveEnabled() {
+  const res = await chrome.storage.local.get({ [SELECTION_SAVE_KEY]: true });
+  return res[SELECTION_SAVE_KEY] !== false;
+}
+
+async function rebuildContextMenu() {
+  const selectionSaveEnabled = await isSelectionSaveEnabled();
+  await chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    id: "save-to-keep",
+    title: "Google Keep に保存",
+    contexts: selectionSaveEnabled ? ["selection", "page"] : ["page"],
+  });
 }
 
 async function ensureKeepTab() {

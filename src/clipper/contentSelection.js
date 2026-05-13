@@ -12,7 +12,8 @@
   });
 
   async function init() {
-    const { inlineEnabled, domainFilters } = await loadSettings();
+    const { selectionSaveEnabled, inlineEnabled, domainFilters } = await loadSettings();
+    if (!selectionSaveEnabled) return;
     if (!inlineEnabled) return;
     if (!isAllowedHost(location.hostname, domainFilters)) return;
 
@@ -165,15 +166,17 @@
   async function loadSettings() {
     try {
       const res = await chrome.storage.local.get({
+        selectionSaveEnabled: true,
         inlineEnabled: true,
         domainFilters: [],
       });
       return {
+        selectionSaveEnabled: res.selectionSaveEnabled !== false,
         inlineEnabled: res.inlineEnabled !== false,
         domainFilters: Array.isArray(res.domainFilters) ? res.domainFilters : [],
       };
     } catch (_err) {
-      return { inlineEnabled: true, domainFilters: [] };
+      return { selectionSaveEnabled: true, inlineEnabled: true, domainFilters: [] };
     }
   }
 
